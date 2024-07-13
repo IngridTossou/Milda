@@ -89,20 +89,20 @@ class DeeplabV3(object):
     #---------------------------------------------------#
     #   获得所有的分类
     #---------------------------------------------------#
-    def generate(self, onnx=False):
-        #-------------------------------#
-        #   载入模型与权值
-        #-------------------------------#
-        self.net = DeepLab(num_classes=self.num_classes, backbone=self.backbone, downsample_factor=self.downsample_factor, pretrained=False)
+    def generate(self):
+        self.net = DeepLab(num_classes=self.num_classes, backbone=self.backbone,
+                           downsample_factor=self.downsample_factor, pretrained=False)
 
-        device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.net.load_state_dict(torch.load(self.model_path, map_location=device))
-        self.net    = self.net.eval()
-        print('{} model, and classes loaded.'.format(self.model_path))
-        if not onnx:
-            if self.cuda:
-                self.net = nn.DataParallel(self.net)
-                self.net = self.net.cuda()
+        # Load the state dict with adjustments
+        state_dict = torch.load(self.model_path, map_location=torch.device('cpu'))
+        model_state_dict = self.net.state_dict()
+
+        # Filter out unnecessary keys and update the model state dict
+        filtered_state_dict = {k: v for k, v in state_dict.items() if k in model_state_dict}
+        model_state_dict.update(filtered_state_dict)
+
+        # Load the updated state dict
+        self.net.load_state_dict(model_state_dict)
 
     #---------------------------------------------------#
     #   检测图片
