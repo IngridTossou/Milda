@@ -1,8 +1,7 @@
 import os
-import torch
+
 from PIL import Image
 from tqdm import tqdm
-from torchvision import transforms
 
 from deeplab import DeeplabV3
 from utils.utils_metrics import compute_mIoU, show_results
@@ -46,31 +45,14 @@ if __name__ == "__main__":
 
         print("Load model.")
         deeplab = DeeplabV3()
-
-        # Move the model to GPU if available
-        if torch.cuda.is_available():
-            deeplab.net = deeplab.net.cuda()
-
         print("Load model done.")
 
         print("Get predict result.")
         for image_id in tqdm(image_ids):
             image_path = os.path.join(VOCdevkit_path, "VOC2007/JPEGImages/" + image_id + ".jpg")
             image = Image.open(image_path)
-
-            # Convert image to tensor and move it to the same device as the model
-            preprocess = transforms.Compose([
-                transforms.ToTensor(),
-            ])
-            image_tensor = preprocess(image).unsqueeze(0)  # Add batch dimension
-
-            if torch.cuda.is_available():
-                image_tensor = image_tensor.cuda()
-
-            image_tensor = deeplab.get_miou_png(image_tensor)
-            image_tensor = image_tensor.squeeze(0).cpu()  # Remove batch dimension and move to CPU
-            image_result = transforms.ToPILImage()(image_tensor)
-            image_result.save(os.path.join(pred_dir, image_id + ".png"))
+            image = deeplab.get_miou_png(image)
+            image.save(os.path.join(pred_dir, image_id + ".png"))
         print("Get predict result done.")
 
     if miou_mode == 0 or miou_mode == 2:
@@ -78,4 +60,4 @@ if __name__ == "__main__":
         hist, IoUs, PA_Recall, Precision = compute_mIoU(gt_dir, pred_dir, image_ids, num_classes,
                                                         name_classes)  # 执行计算mIoU的函数
         print("Get miou done.")
-        show_results(miou_out_path, hist, IoUs, PA_Recall, Precision, name_classes)
+        show_results(miou_out_path, hist, IoUs, PA_Recall, Precision, name_classes) 
