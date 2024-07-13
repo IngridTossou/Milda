@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from nets.xception import xception
-from nets.mobilenetv2 import mobilenetv2, DeformableConv2d  # Import DeformableConv2d
+from nets.mobilenetv2 import mobilenetv2, DeformableConv2d
 
 
 class SEBlock(nn.Module):

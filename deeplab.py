@@ -33,7 +33,7 @@ class DeeplabV3(object):
         #----------------------------------------#
         #   所使用的的主干网络：
         #   mobilenet
-        #   xception    
+        #   xception
         #----------------------------------------#
         "backbone"          : "mobilenet",
         #----------------------------------------#
@@ -71,9 +71,9 @@ class DeeplabV3(object):
         #   画框设置不同的颜色
         #---------------------------------------------------#
         if self.num_classes <= 21:
-            self.colors = [ (0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128), 
-                            (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128), 
-                            (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128), 
+            self.colors = [ (0, 0, 0), (128, 0, 0), (0, 128, 0), (128, 128, 0), (0, 0, 128), (128, 0, 128), (0, 128, 128),
+                            (128, 128, 128), (64, 0, 0), (192, 0, 0), (64, 128, 0), (192, 128, 0), (64, 0, 128), (192, 0, 128),
+                            (64, 128, 128), (192, 128, 128), (0, 64, 0), (128, 64, 0), (0, 192, 0), (128, 192, 0), (0, 64, 128),
                             (128, 64, 12)]
         else:
             hsv_tuples = [(x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
@@ -83,9 +83,9 @@ class DeeplabV3(object):
         #   获得模型
         #---------------------------------------------------#
         self.generate()
-        
+
         show_config(**self._defaults)
-                    
+
     #---------------------------------------------------#
     #   获得所有的分类
     #---------------------------------------------------#
@@ -133,7 +133,7 @@ class DeeplabV3(object):
             images = torch.from_numpy(image_data)
             if self.cuda:
                 images = images.cuda()
-                
+
             #---------------------------------------------------#
             #   图片传入网络进行预测
             #---------------------------------------------------#
@@ -155,7 +155,7 @@ class DeeplabV3(object):
             #   取出每一个像素点的种类
             #---------------------------------------------------#
             pr = pr.argmax(axis=-1)
-        
+
         #---------------------------------------------------------#
         #   计数
         #---------------------------------------------------------#
@@ -173,7 +173,7 @@ class DeeplabV3(object):
                     print('-' * 63)
                 classes_nums[i] = num
             print("classes_nums:", classes_nums)
-    
+
         if self.mix_type == 0:
             # seg_img = np.zeros((np.shape(pr)[0], np.shape(pr)[1], 3))
             # for c in range(self.num_classes):
@@ -208,7 +208,7 @@ class DeeplabV3(object):
             #   将新图片转换成Image的形式
             #------------------------------------------------#
             image = Image.fromarray(np.uint8(seg_img))
-        
+
         return image
 
     def get_FPS(self, image, test_interval):
@@ -231,7 +231,7 @@ class DeeplabV3(object):
             images = torch.from_numpy(image_data)
             if self.cuda:
                 images = images.cuda()
-                
+
             #---------------------------------------------------#
             #   图片传入网络进行预测
             #---------------------------------------------------#
@@ -273,7 +273,7 @@ class DeeplabV3(object):
         im                  = torch.zeros(1, 3, *self.input_shape).to('cpu')  # image size(1, 3, 512, 512) BCHW
         input_layer_names   = ["images"]
         output_layer_names  = ["output"]
-        
+
         # Export the model
         print(f'Starting export with onnx {onnx.__version__}.')
         torch.onnx.export(self.net,
@@ -303,13 +303,12 @@ class DeeplabV3(object):
             onnx.save(model_onnx, model_path)
 
         print('Onnx model save as {}'.format(model_path))
-    
+
     def get_miou_png(self, image):
         #---------------------------------------------------------#
         #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
         #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
         #---------------------------------------------------------#
-
         image       = cvtColor(image)
         orininal_h  = np.array(image).shape[0]
         orininal_w  = np.array(image).shape[1]
@@ -327,7 +326,7 @@ class DeeplabV3(object):
             images = torch.from_numpy(image_data)
             if self.cuda:
                 images = images.cuda()
-                
+
             #---------------------------------------------------#
             #   图片传入网络进行预测
             #---------------------------------------------------#
@@ -349,6 +348,6 @@ class DeeplabV3(object):
             #   取出每一个像素点的种类
             #---------------------------------------------------#
             pr = pr.argmax(axis=-1)
-    
+
         image = Image.fromarray(np.uint8(pr))
         return image

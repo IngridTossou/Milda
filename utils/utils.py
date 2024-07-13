@@ -6,11 +6,13 @@ from PIL import Image
 #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
 #---------------------------------------------------------#
 def cvtColor(image):
-    if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
-        return image 
-    else:
-        image = image.convert('RGB')
-        return image 
+    if isinstance(image, Image.Image):  # Check if the image is a PIL Image
+        if len(np.shape(image)) == 3 and np.shape(image)[2] == 3:
+            return image
+        else:
+            image = image.convert('RGB')
+            return image
+    return image
 
 #---------------------------------------------------#
 #   对输入图像进行resize
